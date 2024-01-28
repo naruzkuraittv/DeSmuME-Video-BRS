@@ -20,12 +20,21 @@ movie_offset = 2
 desmume_movie_down_arrow_default = 17
 movie_down_presses = movie_offset + desmume_movie_down_arrow_default + counting_from_0_offset
 ### things to get from user on start up with a window that asks to fill in numbers and select file### 
-month = 3
-day = 20
-year = 2000
-hours = 8 # must convert to 12 hour clock
-minutes = 58
-seconds = 59
+date_time_pokefinder = "2000-01-01 08:07:00"
+#convert date_time_pokefinder to usable variables
+month = int(date_time_pokefinder[5:7])
+day = int(date_time_pokefinder[8:10])
+year = int(date_time_pokefinder[0:4])
+hours = int(date_time_pokefinder[11:13]) #must convert to 12 hour clock
+minutes = int(date_time_pokefinder[14:16])
+seconds = int(date_time_pokefinder[17:19])
+### end user if u dont know wut to do just type them manually here and comment out the above code ###
+#month = 
+#day = 
+#year = 
+#hours =  
+#minutes = 
+#seconds = 
 #ampm = 1 # AM or PM if pm will be 1 arrow down default is am (0)
 emulator_path = '' #must be a .exe file prefill with config if exists keep option to change
 game_rom_path = '' #must be a .nds file prefill with config if exists keep option to change
@@ -185,7 +194,10 @@ def set_path(item, default_key, filetypes, extension):
                     update_config()
                 return path
             else:
-                messagebox.showwarning("Invalid File", f"The selected file does not have the {extension} extension.")
+                # original line was messagebox.showwarning("Invalid File", f"The selected file does not have the {extension} extension.")
+                # messagebox.askyesno ask if user wants to continue using a not-reccomended file type if yes return path else continue loop instead of just erroring out
+                if messagebox.askyesno("Invalid File", f"The selected file does not have the {extension} extension.\nDo you want to continue using this file?"):
+                    return path
         else:
             messagebox.showwarning("No File Selected", f"No {item} file selected.")
 
@@ -205,11 +217,12 @@ def start_game():
 def start_logic():
     global emulator_path, game_rom_path, gamesave_path
     does_config_exist()
-    emulator_path = set_path("emulator", "emulator_path", [("Emulator Executable", "*.exe")], ".exe")
+    emulator_path = set_path("emulator", "emulator_path", [("Emulator Executable", "*.exe"), ("All Files", "*.*")], ".exe")
     print(emulator_path)
-    game_rom_path = set_path("game ROM", "default_rom", [("NDS ROM", "*.nds")], ".nds")
+    game_rom_path = set_path("game ROM", "default_rom", [("NDS ROM", "*.nds"), ("All Files", "*.*")], ".nds")
     print(game_rom_path)
-    gamesave_path = set_path("game save", "default_save", [("Game Save", "*.dsv")], ".dsv")
+    #dsv or sav files or *.* for all files
+    gamesave_path = set_path("game save", "default_save", [("DSV Save", "*.dsv"), ("SAV Save", "*.sav"), ("All Files", "*.*")], ".dsv")
     print(gamesave_path)
     threading.Thread(target=command_worker, daemon=True).start()
     print("started thread worker starting hotkey listener")
@@ -323,3 +336,4 @@ threading.Thread(target=command_worker, daemon=True).start()
 start_game()
 hotkey_listener()
 time.sleep(2)
+################## next thign to do is calc next see based on start time and find current delay and also click the a button when the time is right ##################
