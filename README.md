@@ -1,4 +1,6 @@
 # DeSmuME-Video-BRS
+## this project is now depreciated
+
 Auto-setup record and SRAM for RNG manipulation aka shiny hunting / VGC hunting in DeSmuME emulator.
 
 ## Instructions
