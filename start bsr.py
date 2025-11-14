@@ -7,9 +7,10 @@ import queue
 from tkinter import messagebox, filedialog
 import time
 import pygetwindow as gw
+import nzk_shortcuts as nzksk
+#first beep counter = soft reset
+#2nd counter = cya later oak
 
-
-    
 cmd_queue = queue.Queue()
 config_data = {}
 on_emulator = False
@@ -20,7 +21,8 @@ movie_offset = 2
 desmume_movie_down_arrow_default = 17
 movie_down_presses = movie_offset + desmume_movie_down_arrow_default + counting_from_0_offset
 ### things to get from user on start up with a window that asks to fill in numbers and select file### 
-date_time_pokefinder = "2000-01-01 08:07:00"
+#date_time_pokefinder = "2010-02-28 23:56:59"
+date_time_pokefinder = "2009-00-01 00:00:00"
 #convert date_time_pokefinder to usable variables
 month = int(date_time_pokefinder[5:7])
 day = int(date_time_pokefinder[8:10])
@@ -227,7 +229,7 @@ def start_logic():
     threading.Thread(target=command_worker, daemon=True).start()
     print("started thread worker starting hotkey listener")
 
-def press_multiple(number_of_times, button, delay=0.001, button2=None):
+def press_multiple_times(number_of_times, button, delay=0.001, button2=None):
     for i in range(number_of_times):
         keyboard.press(button)
         if button2:
@@ -236,7 +238,12 @@ def press_multiple(number_of_times, button, delay=0.001, button2=None):
         keyboard.release(button)
         if button2:
             keyboard.release(button2)
-
+def press_multiple_buttons(duration_pressed, *buttons):
+    for button in buttons:
+        keyboard.press(button)
+    time.sleep(duration_pressed)
+    for button in buttons:
+        keyboard.release(button)
 down_presses = 18 - 1
 
 def open_movie():
@@ -261,7 +268,7 @@ def open_movie():
         else:
             keyboard.press_and_release('alt+f')
             print("alt f")
-            press_multiple(movie_down_presses, 'down', 0.01)
+            press_multiple_times(movie_down_presses, 'down', 0.01)
             print(f"down {movie_down_presses}x times")
             keyboard.press_and_release('enter')
             print("enter")
@@ -282,16 +289,51 @@ def command_worker():
             print("ctrl+alt+shift+e was pressed")
             start_game()
             time.sleep(0.5)
+        elif cmd == "next_ivseed":
+            print("ctrl+alt+shift+b was pressed")
+            next_ivseed()
+            time.sleep(0.5)
         cmd_queue.task_done()
 
 def enqueue_command(command):
     if command not in list(cmd_queue.queue):
         cmd_queue.put(command)
-
+def next_ivseed():
+    while keyboard.is_pressed('ctrl') or keyboard.is_pressed('alt') or keyboard.is_pressed('shift') or keyboard.is_pressed('b'):
+            print("ctrl or alt or shift or b is pressed")
+            print("waiting 0.1 seconds")
+            time.sleep(0.1)
+    print("not pressing button anymore, sleeping .1 seconds")
+    time.sleep(0.1)
+    #press ctrl+alt+shift+3, wait half a second, press 0 wait 0.1 seconds, press space
+    print("pressing escape")
+    press_multiple_buttons(0.2, 'escape')
+    time.sleep(0.05)
+    print("pressing ctrl alt shift 3")
+    press_multiple_buttons(0.1, 'ctrl', 'alt', 'shift', '3')
+    time.sleep(0.1)
+    print("pressing 0")
+    press_multiple_buttons(0.1, '0')
+    time.sleep(0.1)
+    print("pressing space")
+    press_multiple_buttons(0.1, 'space')
+    time.sleep(1)
+    print("pressing space")
+    press_multiple_buttons(0.1, 'space')
+    press_multiple_buttons(0.1, 'space')
+    press_multiple_buttons(0.1, 'space')
+    time.sleep(0.1)
+    print("pressing 1")
+    press_multiple_buttons(0.1, '1')
+    time.sleep(0.1)
+    print("pressing 2")
+    press_multiple_buttons(0.1, '2')
+    print("end")
 def hotkey_listener():
     keyboard.add_hotkey('ctrl+alt+shift+r', enqueue_command, args=["set_rng_init_time"])
     keyboard.add_hotkey('ctrl+alt+shift+s', enqueue_command, args=["get_emulator_title"])
     keyboard.add_hotkey('ctrl+alt+shift+e', enqueue_command, args=["open_new_emulator"])
+    keyboard.add_hotkey('ctrl+alt+shift+b', enqueue_command, args=["next_ivseed"])
     keyboard.wait()
 
 def get_emulator_title():
@@ -319,13 +361,13 @@ def check_how_many_times_to_press_down():
     keyboard.press_and_release('alt+f')
     time.sleep(0.1)
     print("alt f")
-    press_multiple(movie_down_presses, 'down', 0.1)
+    press_multiple_times(movie_down_presses, 'down', 0.1)
     print(f"down {movie_down_presses}x times")
     time.sleep(0.5)
     keyboard.press_and_release('enter')
     global desmume_movie_down_arrow_default
     movie_down = movie_offset + desmume_movie_down_arrow_default 
-    press_multiple(movie_down_presses, 'tab', 0.01)
+    press_multiple_times(movie_down_presses, 'tab', 0.01)
     if messagebox.askyesno("Movie Button", "Is the record movie window up? Press no to try calibrating again") == False:
         movie_down_presses = movie_down_presses - 1
         first_time = True        
